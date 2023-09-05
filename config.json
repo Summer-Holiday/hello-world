@@ -1,0 +1,126 @@
+// 原始出口配置
+"outbounds": [
+  {
+    "protocol": "vmess",
+    "settings": {
+      "vnext": [
+        {
+          "address": "155.138.255.24",
+          "port": 55188,
+          "users": [ 
+            {
+              "id": "877431f2-3f05-495a-ba95-8a02eef809d8",
+              "alterId": 0,
+              "security": "auto"
+            }
+          ]
+        }
+      ]
+    },
+    "streamSettings": {
+      "network": "ws" 
+    },
+    "mux": {
+      "enabled": true
+    }
+  },
+
+  {
+    "protocol": "freedom",
+    "tag": "direct"
+  },
+
+  {
+    "protocol": "blackhole",
+    "tag": "blocked"
+  },
+
+  {
+    "protocol": "dns",
+    "tag": "dns-out"
+  }
+],
+
+// 新增IPv4、IPv6出口
+"outbounds": [
+  ...,
+  
+  {
+    "tag": "IP4_out",
+    "protocol": "freedom",
+    "settings": {
+      "domainStrategy": "UseIPv4"
+    }
+  },
+  {
+    "tag": "IP6_out",
+    "protocol": "freedom",
+    "settings": {
+      "domainStrategy": "UseIPv6"
+    }
+  }
+],
+
+// 原始入口配置 
+"inbounds": [
+  {
+    "port": "1099",
+    "protocol": "dokodemo-door",
+    // ...
+  },
+  {
+    "port": 2133, 
+    "tag": "dns-in",
+    // ...
+  },
+  {
+    "port": 2333,
+    "protocol": "socks",
+    // ...
+  },
+  {
+    "port": 6666, 
+    "protocol": "http",
+    // ...
+  }
+],
+
+// 原始DNS配置
+"dns": {
+  "servers": [
+    {
+      "address": "119.29.29.29",
+      "port": 53,
+      // ... 
+    },
+    {
+      "address": "1.1.1.1",
+      "port": 53,
+      // ...
+    },
+    "8.8.8.8",
+    "localhost"
+  ]
+},
+
+// 原始域名策略
+"routing": {
+  "domainStrategy": "IPOnDemand",
+  
+  // 新增域名分流规则
+  "rules": [
+    {
+      "type": "field",
+      "domain": [
+        "openai.com",
+        "bing.com"  
+      ],
+      "outboundTag": "IP6_out"
+    },
+    {
+      "type": "field",
+      "outboundTag": "IP4_out",
+      "network": "udp,tcp"
+    }
+  ]
+}
